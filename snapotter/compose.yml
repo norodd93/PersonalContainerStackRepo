@@ -1,0 +1,55 @@
+services:
+  snapotter:
+    image: snapotter/snapotter:latest
+    ports:
+      - "100.106.226.96:1349:1349"
+    volumes:
+      - /mnt/snapotter/snapotter-data:/data
+      - /mnt/snapotter/workspace:/tmp/workspace
+    environment:
+      - DATABASE_URL=postgres://snapotter:snapotter@db:5432/snapotter
+      - REDIS_URL=redis://redis:6379
+      - CONCURRENT_JOBS=2
+      - MAX_WORKER_THREADS=3
+      - MAX_BATCH_SIZE=20
+      - MAX_UPLOAD_SIZE_MB=250
+      - MAX_MEGAPIXELS=100
+      - MAX_VIDEO_DURATION_S=300
+      - PROCESSING_TIMEOUT_S=0
+    deploy:
+      resources:
+        limits:
+          cpus: "3"
+          memory: 8G
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=snapotter
+      - POSTGRES_PASSWORD=snapotter
+      - POSTGRES_DB=snapotter
+    volumes:
+      - /mnt/snapotter/postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy noeviction
+    restart: unless-stopped
+
+  reclip:
+    image: reclip:latest
+    ports:
+      - "100.106.226.96:8899:8899"
+    volumes:
+      - /mnt/snapotter/reclip-downloads:/app/downloads
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+    restart: unless-stopped
