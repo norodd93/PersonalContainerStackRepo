@@ -1,0 +1,24 @@
+# ── Open WebUI stack ────────────────────────────────────────────────
+# Run: docker compose -f docker-compose.openwebui.yml --env-file .env.openwebui up -d
+# The ui runs locally and connects to ollama in docker.
+# SearXNG is now in the ollama stack; open webui has no web-search dependency.
+services:
+  open-web-ui:
+    image: ${OPEN_WEBUI_IMAGE}
+    container_name: open-web-ui
+    restart: unless-stopped
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ENABLE_SIGNUP=false
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - WEBUI_URL=${WEBUI_URL}
+    volumes:
+      - /home/norod/docker/ai/openwebui:/app/backend/data:rw
+    ports:
+      - "${OPEN_WEBUI_HOST_BIND}:${OPEN_WEBUI_PORT}:8080"
+    networks:
+      - ai_default
+
+networks:
+  ai_default:
+    external: true
