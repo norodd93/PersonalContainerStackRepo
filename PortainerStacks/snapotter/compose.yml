@@ -4,8 +4,8 @@ services:
     ports:
       - "100.106.226.96:1349:1349"
     volumes:
-      - /mnt/snapotter/snapotter-data:/data
-      - /mnt/snapotter/workspace:/tmp/workspace
+      - /home/norod/docker/snapotter/snapotter-data:/data
+      - /home/norod/docker/snapotter/workspace:/tmp/workspace
     environment:
       - DATABASE_URL=postgres://snapotter:snapotter@db:5432/snapotter
       - REDIS_URL=redis://redis:6379
@@ -33,7 +33,7 @@ services:
       - POSTGRES_PASSWORD=snapotter
       - POSTGRES_DB=snapotter
     volumes:
-      - /mnt/snapotter/postgres-data:/var/lib/postgresql/data
+      - /home/norod/docker/snapotter/postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
@@ -43,10 +43,11 @@ services:
 
   reclip:
     image: reclip:latest
+    pull_policy: never
     ports:
       - "100.106.226.96:8899:8899"
     volumes:
-      - /mnt/snapotter/reclip-downloads:/app/downloads
+      - /home/norod/docker/snapotter/reclip-downloads:/app/downloads
     deploy:
       resources:
         limits:
