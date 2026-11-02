@@ -2,7 +2,7 @@ services:
   snapotter:
     image: snapotter/snapotter:latest
     ports:
-      - "100.106.226.96:1349:1349"
+      - "100.96.62.97:1349:1349"
     volumes:
       - /home/norod/docker/snapotter/snapotter-data:/data
       - /home/norod/docker/snapotter/workspace:/tmp/workspace
@@ -45,7 +45,7 @@ services:
     image: reclip:latest
     pull_policy: never
     ports:
-      - "100.106.226.96:8899:8899"
+      - "100.96.62.97:8899:8899"
     volumes:
       - /home/norod/docker/snapotter/reclip-downloads:/app/downloads
     deploy:
