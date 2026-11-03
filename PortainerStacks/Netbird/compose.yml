@@ -1,0 +1,21 @@
+services:
+  netbird-client:
+      container_name: netbird-client
+      hostname: brick-nb
+      restart: unless-stopped
+      cap_add:
+          - NET_ADMIN
+          - SYS_ADMIN
+          - SYS_RESOURCE
+      devices:
+          - /dev/net/tun
+      network_mode: host
+      environment:
+          - NB_SETUP_${NB_SETUP_KEY}
+          - NB_DISABLE_DNS=true
+      volumes:
+          - netbird-client:/var/lib/netbird
+      image: netbirdio/netbird:latest
+volumes:
+  netbird-client:
+      name: netbird-client
