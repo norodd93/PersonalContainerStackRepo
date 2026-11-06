@@ -1,1 +1,26 @@
+# Stack name in Portainer: ollama
+# No variables to set in Portainer
+# Requires the external Docker network "ai-net" to exist before deploying
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_KEEP_ALIVE=10m
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_CONTEXT_LENGTH=8192
+    volumes:
+      - /home/norod/docker/ai/ollama:/root/.ollama:rw
+    ports:
+      - "100.96.62.97:11434:11434"
+      - "127.0.0.1:11434:11434"
+    command: serve
+    networks:
+      - ai-net
 
+networks:
+  ai-net:
+    external: true
