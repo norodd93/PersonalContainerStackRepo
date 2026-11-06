@@ -1,0 +1,22 @@
+services:
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=100
+      - UMASK=002
+      - STGUIADDRESS=127.0.0.1:8384
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - HOME=/var/syncthing
+      - STHOMEDIR=/var/syncthing/config
+    volumes:
+      - /appdata/fileSThings/NedPi:/data/NedPi:rw
+      - /appdata/fileSThings/OneNord:/data/OneNord:rw
+      - /appdata/fileSThings/SyncFolder:/data/SyncFolder:rw
+      - /appdata/syncthing:/var/syncthing:rw
+      - /appdata/fileSThings/Flip4:/data/Flip4:rw
+      - /appdata/fileSThings/KeePass:/data/KeePass:rw
+      - /appdata/fileSThings/Flip4LapWin11:/data/LapWin11:rw
