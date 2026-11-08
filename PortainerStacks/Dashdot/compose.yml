@@ -1,0 +1,18 @@
+version: "3.5"
+
+services:
+  dash:
+    image: mauricenino/dashdot:latest
+    container_name: dashdot
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "3001:3001"   # change left side if you want a different host port (e.g. "80:3001")
+    volumes:
+      - /:/mnt/host:ro
+    environment:
+      DASHDOT_WIDGET_LIST: "os,cpu,storage,ram,network"
+      # Optional: enable CPU temperature reporting on the Pi
+      # DASHDOT_ENABLE_CPU_TEMPS: "true"
+      # If temps don't show, you can also try:
+      # DASHDOT_CPU_TEMPS_MODE: "max"   # or "avg"
