@@ -17,7 +17,7 @@ Install Docker first, then use Docker to deploy Portainer for management. Or Coo
 2. Install Tailscale and join the tailnet: https://tailscale.com/download. Check the host's IP with `tailscale ip -4`.
 3. Deploy Portainer: https://docs.portainer.io. Keep its UI off the LAN. Either bind it to `127.0.0.1` and publish it to the tailnet with `tailscale serve`, or bind it to the host's Tailscale IP.
 4. On nedpi only, create the shared network for the AI stacks (see below).
-5. In Portainer, go to Stacks, Add stack, paste the stack file, set any variables and click **Deploy the stack**.
+5. In Portainer, go to Stacks, Add stack, choose **Repository**, and deploy the stack from this repo (`https://github.com/norodd93/PersonalContainerStackRepo.git`, `refs/heads/main`). Set the **Compose path** to the stack's `compose.yml` under `PortainerStacks/`, add any variables, and click **Deploy the stack**.
 
 The `ollama` and `webui` stacks talk to each other over an external Docker network called `ai-net`. Portainer does not create it, and both stacks fail to deploy without it. Create it once, before deploying either:
 
@@ -51,10 +51,10 @@ sudo docker network create ai-net
 
 ## Updating a stack
 
-1. In Portainer, open Stacks, then the stack, then Editor.
-2. Make the change and click **Update the stack**.
-3. Turn **Re-pull image** on to get newer images, except for `snapotter`, where it must stay off (see its README).
-4. Update the copy in this repo and the "Last updated" date in the stack's README.
+1. Edit the stack's `compose.yml` (and its README, if needed) in this repo, then commit and push.
+2. In Portainer, open Stacks, then the stack, and click **Pull and redeploy** to pick up the change from GitHub.
+3. Turn **Re-pull image and redeploy** on when you want newer images, except for `snapotter`, where it must stay off (see its README).
+4. Update the "Last updated" date in the stack's README when you change it.
 
 ## When nedpi's Tailscale IP changes
 
@@ -82,4 +82,4 @@ Run `tailscale ip -4` on nedpi to get the new address.
 Stack-specific problems are in each stack's README.
 
 ---
-Last updated: 2026-11-06
+Last updated: 2026-11-08

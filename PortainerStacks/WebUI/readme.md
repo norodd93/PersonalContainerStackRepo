@@ -55,7 +55,7 @@ Do these in order. The `ollama` stack must exist first, because it is the one th
 
 1. Create the `ai-net` network and deploy the `ollama` stack (see its README).
 2. If the old `llm` stack is still running, delete it. The container names and ports 3001 and 8888 are already taken by it.
-3. In Portainer: Stacks, Add stack, name it `webui`, paste the stack file from the bottom of this page.
+3. In Portainer: Stacks, Add stack, choose **Repository**, and name it `webui`. Set **Repository URL** to `https://github.com/norodd93/PersonalContainerStackRepo.git`, **Repository reference** to `refs/heads/main`, and **Compose path** to `PortainerStacks/WebUI/compose.yml`.
 4. Under Environment variables, add `WEBUI_SECRET_KEY`. Reuse the old value if you have one. For a fresh install, generate one with `openssl rand -hex 32`.
 5. Click **Deploy the stack**, then open http://100.96.62.97:3001 and check that the model list loads.
 
@@ -67,9 +67,9 @@ Open WebUI uses the rolling `main` tag, and a newer version can change the datab
 sudo cp -a /home/norod/docker/ai/openwebui /home/norod/docker/ai/openwebui.bak
 ```
 
-1. In Portainer, open Stacks, then `webui`, then Editor.
-2. Make the change and click **Update the stack**.
-3. Turn **Re-pull image** on to get newer Open WebUI and SearXNG images, because the tags are `main` and `latest`.
+1. Edit `PortainerStacks/WebUI/compose.yml` (and this README, if needed) in the repo, then commit and push.
+2. In Portainer, open Stacks, then `webui`, and click **Pull and redeploy**.
+3. Turn **Re-pull image and redeploy** on to get newer Open WebUI and SearXNG images, because the tags are `main` and `latest`.
 
 ## Troubleshooting
 
@@ -137,4 +137,4 @@ networks:
 ```
 
 ---
-Last updated: 2026-11-06
+Last updated: 2026-11-08

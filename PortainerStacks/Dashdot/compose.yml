@@ -13,6 +13,6 @@ services:
     environment:
       DASHDOT_WIDGET_LIST: "os,cpu,storage,ram,network"
       # Optional: enable CPU temperature reporting on the Pi
-      # DASHDOT_ENABLE_CPU_TEMPS: "true"
+      DASHDOT_ENABLE_CPU_TEMPS: "true"
       # If temps don't show, you can also try:
       # DASHDOT_CPU_TEMPS_MODE: "max"   # or "avg"

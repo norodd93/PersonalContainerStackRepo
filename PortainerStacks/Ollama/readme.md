@@ -44,7 +44,7 @@ Create the shared network once. Do this before deploying either stack, because b
 sudo docker network create ai-net
 ```
 
-Then in Portainer: Stacks, Add stack, name it `ollama`, paste the stack file from the bottom of this page, and click **Deploy the stack**. No variables are needed.
+Then in Portainer: Stacks, Add stack, choose **Repository**, and name it `ollama`. Set **Repository URL** to `https://github.com/norodd93/PersonalContainerStackRepo.git`, **Repository reference** to `refs/heads/main`, and **Compose path** to `PortainerStacks/Ollama/compose.yml`. No variables are needed. Click **Deploy the stack**.
 
 If the old `llm` stack is still running, delete it first. The container name and port 11434 are already taken by it.
 
@@ -60,9 +60,9 @@ sudo docker exec ollama ollama rm llama3.2:3b
 
 ## Updating the stack
 
-1. In Portainer, open Stacks, then `ollama`, then Editor.
-2. Make the change and click **Update the stack**.
-3. Turn **Re-pull image** on to get a newer Ollama, because the tag is `latest`.
+1. Edit `PortainerStacks/Ollama/compose.yml` (and this README, if needed) in the repo, then commit and push.
+2. In Portainer, open Stacks, then `ollama`, and click **Pull and redeploy**.
+3. Turn **Re-pull image and redeploy** on to get a newer Ollama, because the tag is `latest`.
 
 The models in `/home/norod/docker/ai/ollama` are kept. The container restarts, so any loaded model is unloaded and running requests fail.
 
@@ -108,4 +108,4 @@ networks:
 ```
 
 ---
-Last updated: 2026-11-06
+Last updated: 2026-11-08

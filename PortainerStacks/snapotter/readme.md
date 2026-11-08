@@ -43,9 +43,9 @@ Let Docker create these folders on first start. Don't create them by hand as `no
 
 ## Updating the stack
 
-1. In Portainer, open Stacks, then `snapotter`, then Editor.
-2. Make the change and click **Update the stack**.
-3. Keep **Re-pull image** off. `reclip:latest` exists only on the Pi, and a re-pull fails and aborts the whole stack. The stack file also sets `pull_policy: never` on `reclip` as a second guard.
+1. Edit `PortainerStacks/snapotter/compose.yml` (and this README, if needed) in the repo, then commit and push.
+2. In Portainer, open Stacks, then `snapotter`, and click **Pull and redeploy**.
+3. Keep **Re-pull image and redeploy** off. `reclip:latest` exists only on the Pi, and a re-pull fails and aborts the whole stack. The stack file also sets `pull_policy: never` on `reclip` as a second guard.
 
 To rebuild ReClip:
 
@@ -126,4 +126,4 @@ services:
 ```
 
 ---
-Last updated: 2026-11-02
+Last updated: 2026-11-08
