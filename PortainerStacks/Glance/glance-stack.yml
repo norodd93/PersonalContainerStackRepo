@@ -1,7 +1,7 @@
 # Glance dashboard + Glance Agent + Docker socket proxy.
 # One self-contained file for both hosts (NedPi and the Brick). Portainer deploys it from Git.
 # Per-host values come from the stack's environment variables in Portainer:
-#   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, AGENT_TOKEN
+#   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, PEER_DOCKER, DISK_MOUNTPOINTS, AGENT_TOKEN
 # Do NOT commit real values (especially AGENT_TOKEN) to the repo.
 
 services:
@@ -39,7 +39,9 @@ services:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
     container_name: glance-docker-proxy
     restart: unless-stopped
-    # No ports published on purpose: only Glance (same stack network) can reach it.
+    ports:
+      # Tailnet only: lets the other host's Glance list containers (read-only API)
+      - "${BIND_IP:?set BIND_IP}:2375:2375"
     environment:
       # Allows the /containers API (read-only: POST stays off by default)
       - "CONTAINERS=1"
@@ -71,4 +73,8 @@ configs:
                 - type: docker-containers
                   title: "Containers on ${LOCAL_NAME:?set LOCAL_NAME}"
                   sock-path: tcp://docker-proxy:2375
+                  format-container-names: true
+                - type: docker-containers
+                  title: "Containers on ${PEER_NAME:?set PEER_NAME}"
+                  sock-path: "${PEER_DOCKER:?set PEER_DOCKER}"
                   format-container-names: true
