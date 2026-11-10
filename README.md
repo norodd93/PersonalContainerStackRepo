@@ -9,22 +9,6 @@ Compose files and notes for my self-hosted stacks. They run on two machines, are
 | nedpi | Raspberry Pi 5, 16 GB                             | Ollama, Open WebUI, SearXNG, SnapOtter, ReClip, Immich machine learning, Glance, WUD |
 | brick | Old Toshiba laptop, Debian 13 headless, WiFi only | Portainer, Syncthing, Immich, Glance, WUD |
 
-## Fresh install?
-
-Install Docker first, then use Docker to deploy Portainer for management. Or Coolify, which is experimental.
-
-1. Install Docker Engine from Docker's apt repo: https://docs.docker.com/engine/install/. Commands in this repo use `sudo docker`.
-2. Install Tailscale and join the tailnet: https://tailscale.com/download. Check the host's IP with `tailscale ip -4`.
-3. Deploy Portainer: https://docs.portainer.io. Keep its UI off the LAN. Either bind it to `127.0.0.1` and publish it to the tailnet with `tailscale serve`, or bind it to the host's Tailscale IP.
-4. On nedpi only, create the shared network for the AI stacks (see below).
-5. In Portainer, go to Stacks, Add stack, choose **Repository**, and deploy the stack from this repo (`https://github.com/norodd93/PersonalContainerStackRepo.git`, `refs/heads/main`). Set the **Compose path** to the stack's compose file under `PortainerStacks/` (for example `PortainerStacks/Ollama/compose.yml` or `PortainerStacks/Glance/glance-stack.yml`), add any variables, and click **Deploy the stack**.
-
-The `ollama` and `webui` stacks talk to each other over an external Docker network called `ai-net`. Portainer does not create it, and both stacks fail to deploy without it. Create it once, before deploying either:
-
-```bash
-sudo docker network create ai-net
-```
-
 ## Stacks
 
 | Stack       | Host         | Services                                | Ports | Docs |
@@ -41,6 +25,22 @@ sudo docker network create ai-net
 `webui` needs the `ollama` stack and the `ai-net` network.
 
 `glance` runs on both hosts. Each dashboard shows both hosts' CPU, RAM and disks, their containers, and the images WUD has flagged for updates. It reads the other host's agent, Docker proxy and WUD over the tailnet. The per-host values are Portainer environment variables; `glance-nedpi.env` and `glance-brick.env` in its folder are templates. WUD only reports updates; it never pulls or restarts anything.
+
+## Fresh install?
+
+Install Docker first, then use Docker to deploy Portainer for management. Or Coolify, which is experimental.
+
+1. Install Docker Engine from Docker's apt repo: https://docs.docker.com/engine/install/. Commands in this repo use `sudo docker`.
+2. Install Tailscale and join the tailnet: https://tailscale.com/download. Check the host's IP with `tailscale ip -4`.
+3. Deploy Portainer: https://docs.portainer.io. Keep its UI off the LAN. Either bind it to `127.0.0.1` and publish it to the tailnet with `tailscale serve`, or bind it to the host's Tailscale IP.
+4. On nedpi only, create the shared network for the AI stacks (see below).
+5. In Portainer, go to Stacks, Add stack, choose **Repository**, and deploy the stack from this repo (`https://github.com/norodd93/PersonalContainerStackRepo.git`, `refs/heads/main`). Set the **Compose path** to the stack's compose file under `PortainerStacks/` (for example `PortainerStacks/Ollama/compose.yml` or `PortainerStacks/Glance/glance-stack.yml`), add any variables, and click **Deploy the stack**.
+
+The `ollama` and `webui` stacks talk to each other over an external Docker network called `ai-net`. Portainer does not create it, and both stacks fail to deploy without it. Create it once, before deploying either:
+
+```bash
+sudo docker network create ai-net
+```
 
 ## How the stacks are set up
 
