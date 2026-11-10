@@ -23,6 +23,8 @@ services:
     image: python:3.12-slim
     container_name: opencode-proxy
     restart: unless-stopped
+    labels:
+      - wud.watch=false
     command: ["python", "-u", "/app/proxy.py"]
     environment:
       - OPENCODE_GO_KEY=${OPENCODE_GO_KEY}
