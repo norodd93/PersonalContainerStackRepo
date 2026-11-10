@@ -1,0 +1,4 @@
+# Environment files hold secrets (e.g. AGENT_TOKEN). Never commit them.
+.env
+.env.*
+*.env
