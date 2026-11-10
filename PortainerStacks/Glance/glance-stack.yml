@@ -48,6 +48,19 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
+  wud:
+    image: getwud/wud:latest
+    container_name: wud
+    restart: unless-stopped
+    ports:
+      # Tailnet only: WUD web UI and API (no login configured)
+      - "${BIND_IP:?set BIND_IP}:3055:3000"
+    environment:
+      # Check registries once a day at 04:00
+      - "WUD_WATCHER_LOCAL_CRON=0 4 * * *"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
 configs:
   glance_config:
     # Compose fills in the ${...} values below when the stack is deployed.
