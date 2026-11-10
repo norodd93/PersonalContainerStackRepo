@@ -28,6 +28,8 @@ services:
 
   db:
     image: postgres:17-alpine
+    labels:
+      - wud.watch=false
     environment:
       - POSTGRES_USER=snapotter
       - POSTGRES_PASSWORD=snapotter
@@ -38,11 +40,15 @@ services:
 
   redis:
     image: redis:8-alpine
+    labels:
+      - wud.watch=false
     command: redis-server --maxmemory 256mb --maxmemory-policy noeviction
     restart: unless-stopped
 
   reclip:
     image: reclip:latest
+    labels:
+      - wud.watch=false
     pull_policy: never
     ports:
       - "100.96.62.97:8899:8899"
