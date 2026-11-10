@@ -1,8 +1,9 @@
 # Glance dashboard + Glance Agent + Docker socket proxy.
 # One self-contained file for both hosts (NedPi and the Brick). Portainer deploys it from Git.
 # Per-host values come from the stack's environment variables in Portainer:
-#   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, PEER_DOCKER, DISK_MOUNTPOINTS, AGENT_TOKEN
-# Do NOT commit real values (especially AGENT_TOKEN) to the repo.
+#   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, PEER_DOCKER, DISK_MOUNTPOINTS, AGENT_TOKEN,
+#   WUD_ADMIN_USER, WUD_ADMIN_PASSWORD
+# Do NOT commit real values (especially AGENT_TOKEN and WUD_ADMIN_PASSWORD) to the repo.
 
 services:
   glance:
@@ -53,11 +54,14 @@ services:
     container_name: wud
     restart: unless-stopped
     ports:
-      # Tailnet only: WUD web UI and API (no login configured)
+      # Tailnet only: WUD web UI and API (login required since WUD 9)
       - "${BIND_IP:?set BIND_IP}:3055:3000"
     environment:
       # Check registries once a day at 04:00
       - "WUD_WATCHER_LOCAL_CRON=0 4 * * *"
+      # WUD 9 refuses to start without an admin account
+      - "WUD_AUTH_ADMIN_USER=${WUD_ADMIN_USER:?set WUD_ADMIN_USER}"
+      - "WUD_AUTH_ADMIN_PASSWORD=${WUD_ADMIN_PASSWORD:?set WUD_ADMIN_PASSWORD}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
