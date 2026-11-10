@@ -63,4 +63,4 @@ services:
 networks:
   immich_default:
     name: immich_default
-    driver: bridge
+    external: true
