@@ -19,8 +19,8 @@ services:
       - docker-proxy
 
   agent:
-   image: glanceapp/agent:latest
-     container_name: glance-agent
+    image: glanceapp/agent:2.26.0
+    container_name: glance-agent
     restart: unless-stopped
     ports:
       # Reachable over the tailnet so the other host's Glance can read these stats
