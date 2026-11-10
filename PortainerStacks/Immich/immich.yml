@@ -37,7 +37,7 @@ services:
           - redis
 
   immich-server:
-    image: ghcr.io/immich-app/immich-server:v3.3.3
+    image: ghcr.io/immich-app/immich-server:v3.3.6
     container_name: immich_server
     restart: always
     environment:
@@ -46,25 +46,6 @@ services:
       - DB_DATABASE_NAME=immich
       - UPLOAD_LOCATION=/srv/immich/ImmichUpload
       - DB_DATA_LOCATION=/srv/immich/ImmichDB
-      - IMMICH_VERSION=v3.3.3
-      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/src/app/server/bin
-      - NODE_VERSION=24.21.0
-      - YARN_VERSION=1.22.22
-      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
-      - XDG_DATA_DIRS=/usr/lib/jellyfin-ffmpeg/share:/usr/local/share:/usr/share
-      - MAGICK_CONFIGURE_PATH=/etc/ImageMagick
-      - NODE_ENV=production
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - NVIDIA_VISIBLE_DEVICES=all
-      - IMMICH_BUILD=38602348632
-      - IMMICH_BUILD_URL=https://github.com/immich-app/immich/actions/runs/38602348632
-      - IMMICH_BUILD_IMAGE=v3.3.3
-      - IMMICH_BUILD_IMAGE_URL=https://github.com/immich-app/immich/pkgs/container/immich-server
-      - IMMICH_REPOSITORY=immich-app/immich
-      - IMMICH_REPOSITORY_URL=https://github.com/immich-app/immich
-      - IMMICH_SOURCE_REF=v3.3.3
-      - IMMICH_SOURCE_COMMIT=d2dac658fe1c67e8bbd08aa18200a32e5d45b9e4
-      - IMMICH_SOURCE_URL=https://github.com/immich-app/immich/commit/d2dac658fe1c67e8bbd08aa18200a32e5d45b9e4
     volumes:
       - /srv/immich/ImmichUpload:/data:rw
       - /etc/localtime:/etc/localtime:ro
