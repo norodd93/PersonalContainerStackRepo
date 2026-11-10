@@ -18,22 +18,22 @@ services:
       - agent
       - docker-proxy
 
-    agent:
-      image: glanceapp/agent:latest
-      container_name: glance-agent
-      restart: unless-stopped
-      ports:
-        # Reachable over the tailnet so the other host's Glance can read these stats
-        - "${BIND_IP:?set BIND_IP}:27973:27973"
-      volumes:
-        # Read-only host mounts for disk stats; which ones show is set by DISK_MOUNTPOINTS
-        - /:/host/root:ro
-        - /var:/host/var:ro
-        - /srv:/host/srv:ro
-      environment:
-        - "TOKEN=${AGENT_TOKEN:?set AGENT_TOKEN}"
-        - "HIDE_MOUNTPOINTS_BY_DEFAULT=true"
-        - "MOUNTPOINTS=${DISK_MOUNTPOINTS:?set DISK_MOUNTPOINTS}"
+   agent:
+   image: glanceapp/agent:latest
+    container_name: glance-agent
+    restart: unless-stopped
+    ports:
+      # Reachable over the tailnet so the other host's Glance can read these stats
+      - "${BIND_IP:?set BIND_IP}:27973:27973"
+    volumes:
+      # Read-only host mounts for disk stats; which ones show is set by DISK_MOUNTPOINTS
+      - /:/host/root:ro
+      - /var:/host/var:ro
+      - /srv:/host/srv:ro
+    environment:
+      - "TOKEN=${AGENT_TOKEN:?set AGENT_TOKEN}"
+      - "HIDE_MOUNTPOINTS_BY_DEFAULT=true"
+      - "MOUNTPOINTS=${DISK_MOUNTPOINTS:?set DISK_MOUNTPOINTS}"
 
   docker-proxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
