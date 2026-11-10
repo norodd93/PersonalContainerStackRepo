@@ -1,0 +1,67 @@
+# Glance dashboard + Glance Agent + Docker socket proxy.
+# One self-contained file for both hosts (NedPi and the Brick). Portainer deploys it from Git.
+# Per-host values come from the stack's environment variables in Portainer:
+#   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, AGENT_TOKEN
+# Do NOT commit real values (especially AGENT_TOKEN) to the repo.
+
+services:
+  glance:
+    image: glanceapp/glance:latest
+    container_name: glance
+    restart: unless-stopped
+    ports:
+      - "${BIND_IP:?set BIND_IP}:8080:8080"
+    configs:
+      - source: glance_config
+        target: /app/config/glance.yml
+    depends_on:
+      - agent
+      - docker-proxy
+
+  agent:
+    image: glanceapp/agent:latest
+    container_name: glance-agent
+    restart: unless-stopped
+    ports:
+      # Reachable over the tailnet so the other host's Glance can read these stats
+      - "${BIND_IP:?set BIND_IP}:27973:27973"
+    environment:
+      - "TOKEN=${AGENT_TOKEN:?set AGENT_TOKEN}"
+
+  docker-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    container_name: glance-docker-proxy
+    restart: unless-stopped
+    # No ports published on purpose: only Glance (same stack network) can reach it.
+    environment:
+      # Allows the /containers API (read-only: POST stays off by default)
+      - "CONTAINERS=1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+configs:
+  glance_config:
+    # Compose fills in the ${...} values below when the stack is deployed.
+    content: |
+      pages:
+        - name: Home
+          columns:
+            - size: small
+              widgets:
+                - type: server-stats
+                  title: Servers
+                  servers:
+                    - type: remote
+                      name: "${LOCAL_NAME:?set LOCAL_NAME}"
+                      url: http://agent:27973
+                      token: "${AGENT_TOKEN:?set AGENT_TOKEN}"
+                    - type: remote
+                      name: "${PEER_NAME:?set PEER_NAME}"
+                      url: "${PEER_URL:?set PEER_URL}"
+                      token: "${AGENT_TOKEN:?set AGENT_TOKEN}"
+            - size: full
+              widgets:
+                - type: docker-containers
+                  title: "Containers on ${LOCAL_NAME:?set LOCAL_NAME}"
+                  sock-path: tcp://docker-proxy:2375
+                  format-container-names: true
