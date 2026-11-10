@@ -3,6 +3,8 @@ services:
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
     container_name: immich_postgres
     restart: always
+    labels:
+      - wud.watch=false
     environment:
       - POSTGRES_INITDB_ARGS=--data-checksums
       - POSTGRES_PASSWORD=ubuntu
