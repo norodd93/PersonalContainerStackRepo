@@ -2,7 +2,7 @@
 # One self-contained file for both hosts (NedPi and the Brick). Portainer deploys it from Git.
 # Per-host values come from the stack's environment variables in Portainer:
 #   BIND_IP, LOCAL_NAME, PEER_NAME, PEER_URL, PEER_DOCKER, DISK_MOUNTPOINTS, AGENT_TOKEN,
-#   WUD_ADMIN_USER, WUD_ADMIN_PASSWORD
+#   WUD_ADMIN_USER, WUD_ADMIN_PASSWORD, PEER_WUD_ADDR
 # Do NOT commit real values (especially AGENT_TOKEN and WUD_ADMIN_PASSWORD) to the repo.
 
 services:
@@ -59,6 +59,8 @@ services:
     environment:
       # Check registries once a day at 04:00
       - "WUD_WATCHER_LOCAL_CRON=0 4 * * *"
+      # Docker Hub images on floating tags (latest) are only flagged via digest watching, which is off by default for Hub
+      - "WUD_WATCHER_LOCAL_WATCHDIGESTDEFAULT=true"
       # WUD 9 refuses to start without an admin account
       - "WUD_AUTH_ADMIN_USER=${WUD_ADMIN_USER:?set WUD_ADMIN_USER}"
       - "WUD_AUTH_ADMIN_PASSWORD=${WUD_ADMIN_PASSWORD:?set WUD_ADMIN_PASSWORD}"
@@ -85,6 +87,36 @@ configs:
                       name: "${PEER_NAME:?set PEER_NAME}"
                       url: "${PEER_URL:?set PEER_URL}"
                       token: "${AGENT_TOKEN:?set AGENT_TOKEN}"
+                - type: custom-api
+                  title: "Image updates: ${LOCAL_NAME:?set LOCAL_NAME}"
+                  cache: 15m
+                  url: "http://${WUD_ADMIN_USER:?set WUD_ADMIN_USER}:${WUD_ADMIN_PASSWORD:?set WUD_ADMIN_PASSWORD}@wud:3000/api/containers"
+                  template: |
+                    <ul class="list list-gap-10">
+                      {{ range .JSON.Array "#(updateAvailable==true)#" }}
+                        <li>
+                          <div class="color-highlight">{{ .String "name" }}</div>
+                          <div class="size-h6">{{ .String "image.name" }}:{{ .String "image.tag.value" }}</div>
+                        </li>
+                      {{ else }}
+                        <li class="color-positive">All watched images are up to date</li>
+                      {{ end }}
+                    </ul>
+                - type: custom-api
+                  title: "Image updates: ${PEER_NAME:?set PEER_NAME}"
+                  cache: 15m
+                  url: "http://${WUD_ADMIN_USER:?set WUD_ADMIN_USER}:${WUD_ADMIN_PASSWORD:?set WUD_ADMIN_PASSWORD}@${PEER_WUD_ADDR:?set PEER_WUD_ADDR}/api/containers"
+                  template: |
+                    <ul class="list list-gap-10">
+                      {{ range .JSON.Array "#(updateAvailable==true)#" }}
+                        <li>
+                          <div class="color-highlight">{{ .String "name" }}</div>
+                          <div class="size-h6">{{ .String "image.name" }}:{{ .String "image.tag.value" }}</div>
+                        </li>
+                      {{ else }}
+                        <li class="color-positive">All watched images are up to date</li>
+                      {{ end }}
+                    </ul>
             - size: full
               widgets:
                 - type: docker-containers
