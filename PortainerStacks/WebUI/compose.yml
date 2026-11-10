@@ -1,5 +1,5 @@
 # Stack name in Portainer: webui
-# Only variable to set in Portainer: WEBUI_SECRET_KEY
+# Variables to set in Portainer: WEBUI_SECRET_KEY, OPENCODE_GO_KEY (optional)
 # Requires the external Docker network "ai-net" and the ollama stack
 services:
   searxng:
@@ -19,12 +19,38 @@ services:
       - SETGID
       - SETUID
 
+  opencode-proxy:
+    image: python:3.12-slim
+    container_name: opencode-proxy
+    restart: unless-stopped
+    command: ["python", "-u", "/app/proxy.py"]
+    environment:
+      - OPENCODE_GO_KEY=${OPENCODE_GO_KEY}
+      - PORT=9000
+    volumes:
+      - /home/norod/docker/ai/opencode-proxy:/app:ro
+    expose:
+      - "9000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
   open-web-ui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-web-ui
     restart: unless-stopped
     depends_on:
       - searxng
+      - opencode-proxy
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - ENABLE_SIGNUP=false
