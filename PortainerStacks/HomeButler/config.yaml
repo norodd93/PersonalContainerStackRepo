@@ -1,44 +1,32 @@
-# HomeButler stack (nedpi)
+╭──   (norod㉿Nedpi) -[docker/homebutler/config]
+╰─$  sudo cat config.yaml
+servers:
+  - name: nedpi
+    host: 100.96.62.97
+    user: norod
+    key: ~/.ssh/id_ed25519
+  - name: brick
+    host: 100.65.227.39
+    user: norod
+    key: ~/.ssh/id_ed25519
 
-Portainer stack `homebutler` on nedpi (Raspberry Pi 5). It runs the HomeButler web dashboard, which reports what changed on the servers it watches — not just what is running now. The dashboard is reachable over the tailnet only.
+notify:
+  telegram:
+    bot_token: <REDACTED>
+    chat_id: <REDACTED>
 
-## What's in the stack
+alerts:
+  cpu: 90      # adjust to taste (e.g. 85)
+  memory: 90
+  disk: 80
+  rules:
+    - name: ai-backend-recover
+      metric: container
+      kind: docker
+      watch: [opencode-proxy, searxng]
+      action: restart
 
-| Service   | Image                               | Port                              | What it does |
-|-----------|-------------------------------------|-----------------------------------|--------------|
-| homebutler | `ghcr.io/higangssh/homebutler:latest` | [8081](http://100.96.62.97:8081) | Web dashboard and API; reaches the servers in `config.yaml` over SSH |
-
-## How it works
-
-The image is the hub, not the probe. A container cannot see the machine it runs on: `status` would read the container's own `/proc`, and a server marked `local: true` is reported as not visible rather than answered with the container's numbers. To report on nedpi, add it to `servers:` in the config and reach it over SSH, with the `homebutler` binary installed on nedpi.
-
-The container reads its config from `/config/config.yaml` and keeps snapshots and watch incidents in `/root/.homebutler`. Both are bind-mounted so they survive a restart; without the state mount, a restart turns "what changed" into "everything is new".
-
-The dashboard can only write to a config file that already exists, so `/config/config.yaml` is created once during setup. `homebutler init` inside the image writes to `/root/.config/homebutler/config.yaml` instead, which is not the mounted path, so it does not create the file the dashboard reads.
-
-## Access
-
-- From the tailnet: [http://100.96.62.97:8081](http://100.96.62.97:8081)
-
-The port is bound to nedpi's Tailscale IP, so it is not reachable from the LAN. Check the current IP with `tailscale ip -4`. The container listens on 8080 internally; it is published as 8081 on the host because glance already uses 8080 on nedpi.
-
-## Variables
-
-Set these in Portainer when deploying the stack. There is no `.env` file in the repo — secrets belong in Portainer's stack variables.
-
-| Variable           | Required | What it is |
-|--------------------|----------|------------|
-| `HOMEBUTLER_TOKEN` | yes      | Bearer token for the dashboard and every `/api/*` route. Generate one with `openssl rand -hex 24` |
-
-`serve` refuses to bind beyond `127.0.0.1` without a token, and an empty value counts as unset, so the container will not start until the variable is filled in. The token crosses the network in clear, so keep the port on the tailnet, or put a reverse proxy with TLS in front of it.
-
-## Setting it up
-
-1. Generate a token: `openssl rand -hex 24`.
-2. In Portainer: Stacks, Add stack, choose **Repository**. Name it `homebutler`, set **Repository URL** to `https://github.com/norodd93/PersonalContainerStackRepo.git`, **Repository reference** to `refs/heads/main`, and **Compose path** to `PortainerStacks/HomeButler/compose.yml`. Add `HOMEBUTLER_TOKEN` under environment variables, then click **Deploy the stack**.
-3. Create the config file the dashboard saves to, then restart the container so `serve` picks it up. On nedpi:
-   ```bash
-   sudo mkdir -p /home/norod/docker/homebutler/config
-   echo 'servers: []' | sudo tee /home/norod/docker/homebutler/config/config.yaml
-   sudo chmod 600 /home/norod/docker/homebutler/config/config.yaml
-   sudo docker restart homebutler
+watch:
+  enabled: true      # once notify is configured
+  notify_on: incident     # or: incident | all | off
+  cooldown: 5m
