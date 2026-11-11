@@ -6,7 +6,7 @@ Portainer stack `ollama` on nedpi (Raspberry Pi 5). It runs Ollama on its own, s
 
 | Service | Image                  | Port  | What it does |
 |---------|------------------------|------:|--------------|
-| ollama  | `ollama/ollama:latest` | 11434 | Runs local LLMs and serves the Ollama API |
+| ollama  | `ollama/ollama:latest` | [11434](http://100.96.62.97:11434) | Runs local LLMs and serves the Ollama API |
 
 ## How it works
 
@@ -16,9 +16,9 @@ The container is attached to the external Docker network `ai-net`, which is shar
 
 ## Access
 
-- From the tailnet: http://100.96.62.97:11434
-- On nedpi itself: http://127.0.0.1:11434
-- From containers on `ai-net`: http://ollama:11434
+- From the tailnet: [http://100.96.62.97:11434](http://100.96.62.97:11434)
+- On nedpi itself: [http://127.0.0.1:11434](http://127.0.0.1:11434)
+- From containers on `ai-net`: `http://ollama:11434`
 
 Check the current IP with `tailscale ip -4`. A quick health check on nedpi: `curl http://127.0.0.1:11434` prints `Ollama is running`.
 
@@ -79,7 +79,7 @@ If the Tailscale IP changes again, update it in the first `ports:` line below. T
 
 ## Stack file (copy)
 
-Portainer holds the real stack. This is a copy, so keep it in sync when you edit the stack.
+Portainer deploys this file from the repo. The copy below is for reference, so keep it in sync when you edit the stack.
 
 ```yaml
 services:
@@ -108,4 +108,4 @@ networks:
 ```
 
 ---
-Last updated: 2026-11-08
+Last updated: 2026-11-11

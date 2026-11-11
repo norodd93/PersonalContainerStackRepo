@@ -6,17 +6,17 @@ Portainer stack `snapotter` on nedpi (Raspberry Pi 5). It runs SnapOtter, its da
 
 | Service   | Image                      | Port | What it does |
 |-----------|----------------------------|-----:|--------------|
-| snapotter | `snapotter/snapotter:latest` | 1349 | SnapOtter web app (image/video processing, optional AI features) |
+| snapotter | `snapotter/snapotter:latest` | [1349](http://100.96.62.97:1349) | SnapOtter web app (image/video processing, optional AI features) |
 | db        | `postgres:17-alpine`       | -    | SnapOtter database. No published port |
 | redis     | `redis:8-alpine`           | -    | SnapOtter job queue (256 MB cap, `noeviction`). No published port |
-| reclip    | `reclip:latest`            | 8899 | ReClip, built locally from `averygan/reclip`. Not on Docker Hub |
+| reclip    | `reclip:latest`            | [8899](http://100.96.62.97:8899) | ReClip, built locally from `averygan/reclip`. Not on Docker Hub |
 
 ## Access
 
 Both ports are bound to nedpi's Tailscale IP, so they are not reachable from the LAN.
 
-- SnapOtter: http://100.96.62.97:1349
-- ReClip: http://100.96.62.97:8899
+- SnapOtter: [http://100.96.62.97:1349](http://100.96.62.97:1349)
+- ReClip: [http://100.96.62.97:8899](http://100.96.62.97:8899)
 
 Check the current IP with `tailscale ip -4`.
 
@@ -64,7 +64,7 @@ If the Tailscale IP changes again, update it in both `ports:` lines below.
 
 ## Stack file (copy)
 
-Portainer holds the real stack. This is a copy, so keep it in sync when you edit the stack.
+Portainer deploys this file from the repo. The copy below is for reference, so keep it in sync when you edit the stack.
 
 ```yaml
 services:
@@ -97,6 +97,8 @@ services:
 
   db:
     image: postgres:17-alpine
+    labels:
+      - wud.watch=false
     environment:
       - POSTGRES_USER=snapotter
       - POSTGRES_PASSWORD=snapotter
@@ -107,11 +109,15 @@ services:
 
   redis:
     image: redis:8-alpine
+    labels:
+      - wud.watch=false
     command: redis-server --maxmemory 256mb --maxmemory-policy noeviction
     restart: unless-stopped
 
   reclip:
     image: reclip:latest
+    labels:
+      - wud.watch=false
     pull_policy: never
     ports:
       - "100.96.62.97:8899:8899"
@@ -126,4 +132,4 @@ services:
 ```
 
 ---
-Last updated: 2026-11-08
+Last updated: 2026-11-11

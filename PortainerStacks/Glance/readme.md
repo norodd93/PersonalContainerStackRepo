@@ -8,10 +8,10 @@ Per-host values (IPs, names, passwords) are Portainer environment variables, so 
 
 | Service      | Image                                          |  Port | What it does |
 |--------------|------------------------------------------------|------:|--------------|
-| glance       | `glanceapp/glance:latest`                      |  8080 | The dashboard |
+| glance       | `glanceapp/glance:latest`                      |  [8080](http://100.96.62.97:8080) | The dashboard |
 | agent        | `glanceapp/agent:latest`                       | 27973 | Reports this host's CPU, RAM and disk. The other host's Glance reads it too |
 | docker-proxy | `ghcr.io/tecnativa/docker-socket-proxy:latest` |  2375 | Gives Glance a read-only view of this host's containers. The other host's Glance reads it too |
-| wud          | `getwud/wud:latest`                            |  3055 | What's Up Docker. Checks registries for newer images and reports them (container port 3000) |
+| wud          | `getwud/wud:latest`                            |  [3055](http://100.96.62.97:3055) | What's Up Docker. Checks registries for newer images and reports them (container port 3000) |
 
 ## How it works
 
@@ -29,9 +29,9 @@ Per-host values (IPs, names, passwords) are Portainer environment variables, so 
 
 ## Access
 
-- nedpi: http://100.96.62.97:8080
-- brick: http://100.65.227.39:8080
-- WUD web UI: port 3055 on the same IPs. Log in with `WUD_ADMIN_USER` and its password.
+- nedpi: [http://100.96.62.97:8080](http://100.96.62.97:8080)
+- brick: [http://100.65.227.39:8080](http://100.65.227.39:8080)
+- WUD web UI: [http://100.96.62.97:3055](http://100.96.62.97:3055) and [http://100.65.227.39:3055](http://100.65.227.39:3055). Log in with `WUD_ADMIN_USER` and its password.
 
 Every published port is bound to the host's Tailscale IP (`BIND_IP`), so none of them is reachable from the LAN. Docker-published ports bypass ufw, so this binding is the access control. Check the current IP with `tailscale ip -4`.
 
@@ -103,4 +103,4 @@ The redeploy recreates the containers, so the dashboard is down for a few second
 The stack file is `glance-stack.yml` in this folder. Portainer deploys it straight from the repo, so there is no second copy here to keep in sync.
 
 ---
-Last updated: 2026-11-10
+Last updated: 2026-11-11

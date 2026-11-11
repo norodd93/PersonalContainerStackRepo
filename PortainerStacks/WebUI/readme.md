@@ -6,8 +6,8 @@ Portainer stack `webui` on nedpi (Raspberry Pi 5). It runs Open WebUI, the chat 
 
 | Service        | Image                                | Port | What it does |
 |----------------|--------------------------------------|-----:|--------------|
-| open-web-ui    | `ghcr.io/open-webui/open-webui:main` | 3001 | Chat web UI. Talks to Ollama for models, to SearXNG for web search and to `opencode-proxy` for the cloud models |
-| searxng        | `searxng/searxng:latest`             | 8888 | Metasearch engine that Open WebUI queries for web results |
+| open-web-ui    | `ghcr.io/open-webui/open-webui:main` | [3001](http://100.96.62.97:3001) | Chat web UI. Talks to Ollama for models, to SearXNG for web search and to `opencode-proxy` for the cloud models |
+| searxng        | `searxng/searxng:latest`             | [8888](http://127.0.0.1:8888) | Metasearch engine that Open WebUI queries for web results |
 | opencode-proxy | `python:3.12-slim`                   | 9000 | Adds the `x-opencode-session` header OpenCode Go requires. Internal only |
 
 ## How it works
@@ -30,8 +30,8 @@ Open WebUI no longer waits for Ollama on startup, because a stack can't depend o
 
 Open WebUI is bound to nedpi's Tailscale IP, so it is not reachable from the LAN.
 
-- Open WebUI: http://100.96.62.97:3001 (also http://127.0.0.1:3001 on nedpi)
-- SearXNG: http://127.0.0.1:8888, on nedpi only. It is not published on the tailnet.
+- Open WebUI: [http://100.96.62.97:3001](http://100.96.62.97:3001) (also [http://127.0.0.1:3001](http://127.0.0.1:3001) on nedpi)
+- SearXNG: [http://127.0.0.1:8888](http://127.0.0.1:8888), on nedpi only. It is not published on the tailnet.
 - opencode-proxy: not published at all. Only `open-web-ui` can reach it, on the stack's internal network.
 
 Check the current IP with `tailscale ip -4`.
@@ -109,7 +109,7 @@ If the Tailscale IP changes again, update it in the second `ports:` line and in 
 
 ## Stack file (copy)
 
-Portainer holds the real stack. This is a copy, so keep it in sync when you edit the stack.
+Portainer deploys this file from the repo. The copy below is for reference, so keep it in sync when you edit the stack.
 
 ```yaml
 services:
@@ -134,6 +134,8 @@ services:
     image: python:3.12-slim
     container_name: opencode-proxy
     restart: unless-stopped
+    labels:
+      - wud.watch=false
     command: ["python", "-u", "/app/proxy.py"]
     environment:
       - OPENCODE_GO_KEY=${OPENCODE_GO_KEY}
@@ -187,4 +189,4 @@ networks:
 ```
 
 ---
-Last updated: 2026-11-10
+Last updated: 2026-11-11

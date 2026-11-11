@@ -1,3 +1,11 @@
+# Portainer for brick. Portainer is not managed by a Portainer stack.
+# The UI binds to localhost and is published to the tailnet with:
+#   tailscale serve --bg --tcp=9443 tcp://127.0.0.1:9443
+# nedpi runs Portainer EE the same way. See README.md.
+# Add "127.0.0.1:8000:8000" only if you use Portainer Edge Agents.
+# portainer_data is pre-existing; on a fresh host create it first:
+#   sudo docker volume create portainer_data
+
 services:
   portainer:
     image: portainer/portainer-ce:lts
@@ -9,9 +17,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     ports:
-      - "9443:9443"
-      - "8000:8000" # Optional: needed if you plan to use Edge Agents
+      - "127.0.0.1:9443:9443"
 
 volumes:
   portainer_data:
+    external: true
     name: portainer_data
