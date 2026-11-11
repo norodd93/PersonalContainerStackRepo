@@ -14,6 +14,8 @@ The image is the hub, not the probe. A container cannot see the machine it runs 
 
 The container reads its config from `/config/config.yaml` and keeps snapshots and watch incidents in `/root/.homebutler`. Both are bind-mounted so they survive a restart; without the state mount, a restart turns "what changed" into "everything is new".
 
+The dashboard can only write to a config file that already exists, so `/config/config.yaml` is created once during setup. `homebutler init` inside the image writes to `/root/.config/homebutler/config.yaml` instead, which is not the mounted path, so it does not create the file the dashboard reads.
+
 ## Access
 
 - From the tailnet: [http://100.96.62.97:8081](http://100.96.62.97:8081)
@@ -34,13 +36,21 @@ Set these in Portainer when deploying the stack. There is no `.env` file in the 
 
 1. Generate a token: `openssl rand -hex 24`.
 2. In Portainer: Stacks, Add stack, choose **Repository**. Name it `homebutler`, set **Repository URL** to `https://github.com/norodd93/PersonalContainerStackRepo.git`, **Repository reference** to `refs/heads/main`, and **Compose path** to `PortainerStacks/HomeButler/compose.yml`. Add `HOMEBUTLER_TOKEN` under environment variables, then click **Deploy the stack**.
-3. Open [http://100.96.62.97:8081](http://100.96.62.97:8081) and sign in with the token.
-4. Install the `homebutler` binary on every server you want to watch. On nedpi:
+3. Create the config file the dashboard saves to, then restart the container so `serve` picks it up. On nedpi:
+   ```bash
+   sudo mkdir -p /home/norod/docker/homebutler/config
+   echo 'servers: []' | sudo tee /home/norod/docker/homebutler/config/config.yaml
+   sudo chmod 600 /home/norod/docker/homebutler/config/config.yaml
+   sudo docker restart homebutler
+   ```
+   Without this file the Config tab says "there is no config file to write", and `homebutler init` does not fix it (see How it works).
+4. Open [http://100.96.62.97:8081](http://100.96.62.97:8081) and sign in with the token. Reload the page if the banner about the config file changing on disk is still there.
+5. Install the `homebutler` binary on every server you want to watch. On nedpi:
    ```bash
    curl -fsSL https://raw.githubusercontent.com/Higangssh/homebutler/main/install.sh | sh
    ```
    Or, from a machine that already has your key, deploy it remotely with `homebutler deploy --server <name>`. An older binary on the far side fails with `unknown command`; upgrade it there.
-5. Add the servers on the dashboard's **Config** tab. With a token set, the settings screen is editable. A minimal `config.yaml` for the two hosts:
+6. Add the servers on the dashboard's **Config** tab. With a token set, the settings screen is editable. The container cannot resolve the host's own hostname, so use its Tailscale IP in **Host**. A minimal `config.yaml` for the two hosts:
    ```yaml
    servers:
      - name: nedpi
@@ -53,12 +63,16 @@ Set these in Portainer when deploying the stack. There is no `.env` file in the 
        key: ~/.ssh/id_ed25519
    ```
    `~` resolves to `/root` in the container, which is where the host's `.ssh` is mounted. Use `id_rsa` if that is the key you have. Once the settings screen has written the file, check it from nedpi with `homebutler config validate --config /home/norod/docker/homebutler/config/config.yaml`, or from inside the container with `sudo docker exec homebutler homebutler config validate`.
-6. Trust the hosts the first time. The SSH mount is read-only, so a host that is not in `known_hosts` fails instead of being trusted silently. On nedpi, with `~/.ssh` writable:
+7. Make sure the container's key is allowed in on each server. It connects as `norod` with your `~/.ssh/id_ed25519`, so that key's public half has to be in `~norod/.ssh/authorized_keys` there. On nedpi:
    ```bash
-   homebutler trust nedpi
-   sudo docker restart homebutler
+   cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+   chmod 600 ~/.ssh/authorized_keys
    ```
-   Or add a host key by hand: `ssh-keyscan -H 100.96.62.97 >> ~/.ssh/known_hosts`.
+8. Trust the hosts the first time. The SSH mount is read-only, so a host that is not in `known_hosts` fails instead of being trusted silently. On nedpi, with `~/.ssh` writable:
+   ```bash
+   ssh-keyscan -H 100.96.62.97 >> ~/.ssh/known_hosts
+   ```
+   Or use the CLI, pointing it at the mounted config: `homebutler trust --config /home/norod/docker/homebutler/config/config.yaml nedpi`. Restart the container afterwards: `sudo docker restart homebutler`.
 
 The dashboard does not watch its own host. If you want nedpi's own CPU, disks and containers in it, add nedpi over SSH as above; the alternative is running the binary directly on nedpi outside the container.
 
@@ -88,6 +102,8 @@ The config and snapshots in `/home/norod/docker/homebutler` are kept.
 | Error on deploy or in the logs | Meaning | Fix |
 |--------------------------------|---------|-----|
 | `set HOMEBUTLER_TOKEN` or the container exits at once | The variable is missing, or empty | Add `HOMEBUTLER_TOKEN` in Portainer, then redeploy |
+| `there is no config file to write; run homebutler init first` | `/config/config.yaml` does not exist, so the dashboard has nothing to save to | Create it (see Setting it up), then restart the container |
+| `Permission denied (publickey)` from a server | The container's key is not in that server's `authorized_keys` | Add the public half of `~/.ssh/id_ed25519` to `~norod/.ssh/authorized_keys` on the server |
 | `cannot assign requested address` on port 8081 | The Tailscale IP in the stack file is not on nedpi: the IP changed, or `tailscaled` is down | Run `tailscale ip -4`. If the IP differs, update the `ports:` line. If nothing prints, start Tailscale first |
 | `port is already allocated` | Another container already holds 8081 | Stop it, or change the host port in the `ports:` line |
 | A server shows as not visible | It is the machine the container runs on | Add it over SSH with the binary installed, as in Setting it up |
