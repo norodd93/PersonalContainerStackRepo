@@ -1,0 +1,18 @@
+# HomeButler dashboard on nedpi.
+# The container is the hub, not the probe: it reaches the servers listed in
+# config.yaml over SSH, so the host's SSH keys are mounted read-only.
+# Required variable in Portainer: HOMEBUTLER_TOKEN (the dashboard API token).
+services:
+  homebutler:
+    image: ghcr.io/higangssh/homebutler:latest
+    container_name: homebutler
+    restart: unless-stopped
+    ports:
+      # The container listens on 8080, which glance already publishes on nedpi
+      - "100.96.62.97:8081:8080"
+    environment:
+      - HOMEBUTLER_TOKEN=${HOMEBUTLER_TOKEN:?set HOMEBUTLER_TOKEN}
+    volumes:
+      - /home/norod/docker/homebutler/config:/config
+      - /home/norod/docker/homebutler/state:/root/.homebutler
+      - /home/norod/.ssh:/root/.ssh:ro

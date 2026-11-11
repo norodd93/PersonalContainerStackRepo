@@ -6,7 +6,7 @@ Compose files and notes for my self-hosted stacks. They run on two machines, are
 
 | Host  | Hardware                                          | What runs there |
 |-------|---------------------------------------------------|-----------------|
-| nedpi | Raspberry Pi 5, 16 GB                             | Portainer (EE), Ollama, Open WebUI, SearXNG, OpenCode proxy, SnapOtter, ReClip, Immich machine learning, Glance, WUD |
+| nedpi | Raspberry Pi 5, 16 GB                             | Portainer (EE), Ollama, Open WebUI, SearXNG, OpenCode proxy, SnapOtter, ReClip, Immich machine learning, Glance, WUD, HomeButler |
 | brick | Old Toshiba laptop, Debian 13 headless, WiFi only | Portainer (CE), Syncthing, Immich, Glance, WUD |
 
 ## Stacks
@@ -16,6 +16,7 @@ Compose files and notes for my self-hosted stacks. They run on two machines, are
 | `ollama`    | nedpi        | Ollama                                  | [11434](http://100.96.62.97:11434) | [Ollama](PortainerStacks/Ollama/readme.md) |
 | `webui`     | nedpi        | Open WebUI, SearXNG, OpenCode proxy     | [3001](http://100.96.62.97:3001), SearXNG [8888](http://127.0.0.1:8888) (localhost only) | [WebUI](PortainerStacks/WebUI/readme.md) |
 | `snapotter` | nedpi        | SnapOtter, ReClip, Postgres, Redis      | [1349](http://100.96.62.97:1349), [8899](http://100.96.62.97:8899) | [SnapOtter](PortainerStacks/snapotter/readme.md) |
+| `homebutler` | nedpi       | HomeButler dashboard                    | [8081](http://100.96.62.97:8081) | [HomeButler](PortainerStacks/HomeButler/readme.md) |
 | `immich-ml` | nedpi        | Immich machine learning                 | 3003 localhost, [100.96.62.97:3003](http://100.96.62.97:3003) via `tailscale serve` | [Immich](PortainerStacks/Immich/readme.md) |
 | `immich`    | brick        | Immich                                  | [2283](http://100.65.227.39:2283) | [Immich](PortainerStacks/Immich/readme.md) |
 | `syncthing` | brick        | Syncthing                               | [8384](http://100.65.227.39:8384) (GUI), 22000 (sync) | - |
@@ -73,6 +74,7 @@ The current IPs are `100.96.62.97` (nedpi) and `100.65.227.39` (brick). They are
 | `ollama`        | The first `ports:` line |
 | `webui`         | The second `ports:` line of `open-web-ui`, and `WEBUI_URL` |
 | `snapotter`     | Both `ports:` lines (`snapotter` and `reclip`) |
+| `homebutler`    | The `ports:` line                                |
 | `immich` (brick) | The machine learning URL in Immich's admin settings (`http://<ip>:3003`) |
 | `glance` (both hosts) | `BIND_IP` on the host whose IP changed, then `PEER_URL`, `PEER_DOCKER` and `PEER_WUD_ADDR` on the other host |
 
